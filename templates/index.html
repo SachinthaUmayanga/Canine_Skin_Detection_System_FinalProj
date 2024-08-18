@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skin Condition Detection</title>
+    <title>Canine Skin Detection</title>
 </head>
 <body>
-    <h1>Upload Image or Video for Skin Condition Detection</h1>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*,video/*" required>
+    <h1>Upload an Image for Skin Condition Detection</h1>
+    <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
         <input type="submit" value="Upload">
     </form>
-    {{% if error %}}
-    <p style="color:red">{{ error }}</p>
-    {{% endif %}}
 </body>
 </html>

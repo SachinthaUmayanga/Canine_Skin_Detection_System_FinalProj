@@ -3,36 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detection Results</title>
+    <title>Detection Result</title>
 </head>
 <body>
-    <h1>Detection Results</h1>
-    {{ % if type == 'image' % }}
-        <h2>Detected Conditions:</h2>
-        <ul>
-            {{% for result in results %}}
-            <li>
-                <strong>Condition:</strong> {{ result['name'] }}<br>
-                <strong>Confidence:</strong> {{ result['confidence'] }}<br>
-                <strong>Coordinates:</strong> ({{ result['xmin'] }}, {{ result['ymin'] }}) to ({{ result['xmax'] }}, {{ result['ymax'] }})
-            </li>
-            {{% endfor %}}
-        </ul>
-    {{% elif type == 'video' %}}
-        <h2>Detected Conditions Per Frame:</h2>
-        {{% for frame in results %}}
-        <h3>Frame {{ frame['frame'] }}:</h3>
-        <ul>
-            {{% for result in frame['results'] %}}
-            <li>
-                <strong>Condition:</strong> {{ result['name'] }}<br>
-                <strong>Confidence:</strong> {{ result['confidence'] }}<br>
-                <strong>Coordinates:</strong> ({{ result['xmin'] }}, {{ result['ymin'] }}) to ({{ result['xmax'] }}, {{ result['ymax'] }})
-            </li>
-            {{% endfor %}}
-        </ul>
-        {{% endfor %}}
-    {{% endif %}}
-    <a href="/">Go back to upload another file</a>
+    <h1>Detection Result</h1>
+    <p>{{ prediction }}</p>
+    <a href="{{ url_for('index') }}">Upload Another Image</a>
 </body>
 </html>

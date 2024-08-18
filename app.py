@@ -1,85 +1,47 @@
-from flask import Flask, render_template, request, redirect, url_for
-import torch
+from flask import Flask, request, render_template, redirect, url_for
 from PIL import Image
 import cv2
-import os
+import numpy as np
+# Import your model here, e.g., a TensorFlow or Scikit-learn model
+# from tensorflow.keras.models import load_model
+# model = load_model('your_model.h5')
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads/'
 
-# Load the YOLOv5 model
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='/mnt/data/last.pt')
+# Load your pre-trained model
+# model = load_model('model.h5')
 
-def detect_skin_condition(image_path):
-    # Load the image
-    image = Image.open(image_path)
-    
-    # Perform detection
-    results = model(image)
-    
-    # Return results
-    return results.pandas().xyxy[0].to_dict(orient="records")
-
-def process_video(video_path):
-    cap = cv2.VideoCapture(video_path)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    detections = []
-
-    for i in range(frame_count):
-        ret, frame = cap.read()
-        if not ret:
-            break
-        
-        # Save frame as image
-        frame_path = f"frame_{i}.jpg"
-        cv2.imwrite(frame_path, frame)
-        
-        # Detect on frame
-        results = detect_skin_condition(frame_path)
-        detections.append({"frame": i, "results": results})
-        
-        # Clean up frame image
-        os.remove(frame_path)
-
-    cap.release()
-    return detections
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        # Check if the post request has the file part
-        if 'file' not in request.files:
-            return redirect(request.url)
-        
-        file = request.files['file']
-        if file.filename == '':
-            return redirect(request.url)
-        
-        if file:
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(file_path)
-            
-            if file.filename.lower().endswith(('.jpg', '.jpeg', '.png')):
-                results = detect_skin_condition(file_path)
-                os.remove(file_path)
-                return render_template('result.html', results=results, type='image')
-            
-            elif file.filename.lower().endswith(('.mp4', '.avi', '.mov')):
-                results = process_video(file_path)
-                os.remove(file_path)
-                return render_template('result.html', results=results, type='video')
-            
-            else:
-                os.remove(file_path)
-                return render_template('index.html', error="Unsupported file type")
-    
     return render_template('index.html')
 
-@app.route('/result')
-def result():
-    return render_template('result.html')
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return redirect(url_for('index'))
+    file = request.files['file']
+    if file.filename == '':
+        return redirect(url_for('index'))
 
-if __name__ == '__main__':
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    app.run(debug=True, host='0.0.0.0')
+    if file:
+        # Open image using PIL
+        image = Image.open(file)
+        image = np.array(image)
+
+        # Convert image to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Resize image to the model's expected input size
+        resized_image = cv2.resize(gray, (224, 224))  # Adjust size based on your model
+        input_image = np.expand_dims(resized_image, axis=0)
+
+        # Make prediction using the loaded model
+        # prediction = model.predict(input_image)
+
+        # For demonstration, we'll just return a placeholder
+        prediction = "Healthy Skin"  # Replace with actual prediction logic
+
+        return render_template('result.html', prediction=prediction)
+
+if __name__ == "__main__":
+    app.run(debug=True)
