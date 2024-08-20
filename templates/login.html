@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Canine Skin Detection</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+     <!-- Include Navigation Bar -->
+     {% include 'navbar.html' %}
+
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h3 class="text-center mb-4">Canine Skin Detection</h3>
+                        <div class="text-center mb-3">
+                            <!-- <img src="{{ url_for('static', filename='vet.png') }}" alt="Vet holding dog" class="img-fluid" style="max-width: 50%;"> -->
+                        </div>
+                        <!-- Form starts -->
+                        <form action="{{ url_for('auth.login') }}" method="POST">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="username" class="form-control" id="username" name="username" placeholder="Enter username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-block">Login</button>
+                            <div class="text-center mt-3">
+                                <a href="#">Forgot password?</a> |
+                                <a href="">Register here</a>
+                            </div>
+                        </form>
+                        <!-- Social login buttons -->
+                        <hr>
+                        <div class="text-center">
+                            <p>Or sign in with:</p>
+                            <a href="#" class="btn btn-primary mr-2"><i class="fab fa-facebook-f"></i> Facebook</a>
+                            <a href="#" class="btn btn-danger mr-2"><i class="fab fa-google"></i> Google</a>
+                            <a href="#" class="btn btn-purple"><i class="fab fa-instagram"></i> Instagram</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>
