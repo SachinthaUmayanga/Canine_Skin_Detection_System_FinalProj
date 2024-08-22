@@ -74,15 +74,40 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
+@auth.route('/change_profile', methods=['GET', 'POST'])
+def change_profile():
+    if 'user' not in session:
+        return redirect(url_for('auth.login'))
 
-# Uncomment and implement the profile change route if needed
-# @auth.route('/change_profile', methods=['GET', 'POST'])
-# def change_profile():
-#     if 'user' not in session:
-#         return redirect(url_for('auth.login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-#     if request.method == 'POST':
-#         # Handle profile change logic
-#         pass
+    if request.method == 'POST':
+        new_username = request.form.get('username')
+        new_password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
 
-#     return render_template('change_profile.html')
+        current_username = session['user']
+
+        if new_password and new_password != confirm_password:
+            error = 'Passwords do not match. Please try again.'
+            return render_template('change_profile.html', error=error, username=current_username)
+
+        if new_password:
+            hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
+            cursor.execute('UPDATE users SET password = ? WHERE username = ?', (hashed_password, current_username))
+        
+        if new_username:
+            cursor.execute('UPDATE users SET username = ? WHERE username = ?', (new_username, current_username))
+            session['user'] = new_username  # Update session username
+
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('auth.change_profile'))
+
+    # Retrieve user info to populate the form
+    user = cursor.execute('SELECT * FROM users WHERE username = ?', (session['user'],)).fetchone()
+    conn.close()
+
+    return render_template('change_profile.html', username=user['username'])
