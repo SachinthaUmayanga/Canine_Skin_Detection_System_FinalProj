@@ -10,10 +10,10 @@
 <body>
 
     <!-- Include Navigation Bar -->
-    {% include 'navbar.html' %}
+    {% include 'partials/navbar.html' %}
 
     <!-- Include Jumbotron -->
-    {% include 'jumbotron.html' %}
+    {% include 'partials/jumbotron.html' %}
 
     <!-- Main Content -->
     <div class="container mt-5 mb-5" id="upload-section">
@@ -33,8 +33,73 @@
         </div>
     </div>
 
+
+    <!-- Educational Section: Common Dog Skin Conditions -->
+    <div class="container mt-5 mb-5" id="education-section">
+        <h2 class="text-center mb-4">Common Dog Skin Conditions</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename='imgs/atopic-dermatitis.webp') }}" class="card-img-top" alt="Allergic Dermatitis">
+                    <div class="card-body">
+                        <h5 class="card-title">Allergic Dermatitis</h5>
+                        <p class="card-text">Allergic dermatitis is a common condition caused by allergens such as food, pollen, or flea bites. It can lead to intense itching, redness, and inflammation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename='imgs/Hotspot.webp') }}" class="card-img-top" alt="Hot Spots">
+                    <div class="card-body">
+                        <h5 class="card-title">Hot Spots</h5>
+                        <p class="card-text">Hot spots are red, moist, and irritated areas of skin often caused by constant licking or scratching. They can appear suddenly and spread quickly.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename='imgs/ringworm.jpg') }}" class="card-img-top" alt="Ringworm">
+                    <div class="card-body">
+                        <h5 class="card-title">Ringworm</h5>
+                        <p class="card-text">Despite its name, ringworm is a fungal infection. It appears as circular patches of hair loss with a red ring around them and can be highly contagious.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename='imgs/mange.jpg') }}" class="card-img-top" alt="Mange">
+                    <div class="card-body">
+                        <h5 class="card-title">Mange</h5>
+                        <p class="card-text">Mange is caused by mites that burrow into a dog's skin. It can lead to severe itching, hair loss, and secondary infections if left untreated.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename='imgs/dandruff.jpeg') }}" class="card-img-top" alt="Dandruff">
+                    <div class="card-body">
+                        <h5 class="card-title">Dandruff</h5>
+                        <p class="card-text">Dandruff in dogs can be caused by dry skin, allergies, or poor diet. It appears as white flakes in the fur and can sometimes be accompanied by itching.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename='imgs/fungal_infections.jpg') }}" class="card-img-top" alt="Fungal Infections">
+                    <div class="card-body">
+                        <h5 class="card-title">Fungal Infections</h5>
+                        <p class="card-text">Fungal infections can affect the skin, causing redness, itching, and flaking. Some common fungi include yeast and ringworm.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Include Footer -->
-    {% include 'footer.html' %}
+    {% include 'partials/footer.html' %}
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

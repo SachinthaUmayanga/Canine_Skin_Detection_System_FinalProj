@@ -37,3 +37,16 @@ body {
     z-index: 1050;
     animation: slideIn 0.5s ease-out;
 }
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+.card {
+    height: 100%;
+}
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
