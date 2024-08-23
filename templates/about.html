@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Canine Skin Detection</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <!-- Include Navigation Bar -->
+    {% include 'partials/navbar.html' %}
+
+    <!-- About Us Section -->
+    <div class="container mt-5 mb-5">
+        <h2 class="text-center mb-4">About Us</h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Our Project</h3>
+                <p>
+                    The Canine Skin Detection system is a cutting-edge tool designed to assist pet owners and veterinarians in identifying common skin conditions in dogs. Utilizing advanced artificial intelligence and machine learning algorithms, our system analyzes photos and videos of dogs to detect potential skin issues with high accuracy.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <img src="{{ url_for('static', filename='imgs/logo.png') }}" alt="Canine Skin Detection Project" class="img-fluid rounded">
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="row">
+            <div class="col-md-6 order-md-2">
+                <h3>Our Mission</h3>
+                <p>
+                    Our mission is to empower dog owners and veterinary professionals with the tools they need to identify and address skin conditions in dogs swiftly. We believe that early detection is key to ensuring the health and well-being of dogs, and our platform is designed to make that process as straightforward and accurate as possible.
+                </p>
+                <p>
+                    Through continuous research and development, we aim to expand the capabilities of our system to cover a broader range of conditions and provide even more precise diagnoses.
+                </p>
+            </div>
+            <div class="col-md-6 order-md-1">
+                <img src="{{ url_for('static', filename='imgs/mission.jpg') }}" alt="Our Mission" class="img-fluid rounded">
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Contact Us</h3>
+                <p>
+                    If you have any questions or would like to learn more about our project, please don't hesitate to reach out. We are always open to feedback and collaboration opportunities.
+                </p>
+                <p>
+                    <strong>Email:</strong> support@canineskindetection.com<br>
+                    <strong>Phone:</strong> +123 456 7890<br>
+                    <strong>Address:</strong> 123 Pet Care Avenue, Dogsville, PA 12345
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    {% include 'partials/footer.html' %}
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
