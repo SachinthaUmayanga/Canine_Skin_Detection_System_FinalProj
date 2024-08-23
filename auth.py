@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 import sqlite3
 import hashlib  # For password hashing
 
@@ -28,10 +28,11 @@ def login():
 
         if user:
             session['user'] = user['username']
+            flash('Successfully logged in!', 'success')
             return redirect(url_for('index'))
         else:
-            error = 'Invalid Credentials. Please try again.'
-            return render_template('login.html', error=error)
+            flash('Invalid Credentials. Please try again.', 'danger')
+            return render_template('login.html')
     
     return render_template('login.html')
 
@@ -43,8 +44,8 @@ def signup():
         confirm_password = request.form['confirm_password']
         
         if password != confirm_password:
-            error = 'Passwords do not match. Please try again.'
-            return render_template('signup.html', error=error)
+            flash('Passwords do not match. Please try again.', 'danger')
+            return render_template('signup.html')
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -53,8 +54,8 @@ def signup():
         cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
         if cursor.fetchone():
             conn.close()
-            error = 'Username already exists. Please choose a different one.'
-            return render_template('signup.html', error=error)
+            flash('Username already exists. Please choose a different one.', 'danger')
+            return render_template('signup.html')
 
         # Hash the password before storing
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
@@ -65,6 +66,7 @@ def signup():
         conn.close()
 
         session['user'] = username
+        flash('Successfully signed up!', 'success')
         return redirect(url_for('index'))
     
     return render_template('signup.html')
@@ -72,6 +74,7 @@ def signup():
 @auth.route('/logout')
 def logout():
     session.pop('user', None)
+    flash('Successfully logged out.', 'success')
     return redirect(url_for('index'))
 
 @auth.route('/change_profile', methods=['GET', 'POST'])
@@ -90,16 +93,18 @@ def change_profile():
         current_username = session['user']
 
         if new_password and new_password != confirm_password:
-            error = 'Passwords do not match. Please try again.'
-            return render_template('change_profile.html', error=error, username=current_username)
+            flash('Passwords do not match. Please try again.', 'danger')
+            return render_template('change_profile.html', username=current_username)
 
         if new_password:
             hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
             cursor.execute('UPDATE users SET password = ? WHERE username = ?', (hashed_password, current_username))
+            flash('Password successfully changed!', 'success')
         
         if new_username:
             cursor.execute('UPDATE users SET username = ? WHERE username = ?', (new_username, current_username))
             session['user'] = new_username  # Update session username
+            flash('Username successfully changed!', 'success')
 
         conn.commit()
         conn.close()
