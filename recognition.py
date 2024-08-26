@@ -1,44 +1,58 @@
+from ultralytics import YOLO
 from PIL import Image
 import cv2
 import numpy as np
 import os
 
-def process_image(file):
-    image = Image.open(file)
-    image = np.array(image)
+# Load the YOLOv8 model
+try:
+    model = YOLO('last.pt')  # Load the pre-trained YOLOv8 small model
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    resized_image = cv2.resize(gray, (224, 224))  # Adjust size based on your model
-    input_image = np.expand_dims(resized_image, axis=0)
+def process_image(file, model):
+    try:
+        # Load image with PIL and convert to numpy array
+        image = Image.open(file)
+        image = np.array(image)
 
-    # prediction = model.predict(input_image)
-    prediction = "Healthy Skin"  # Replace with actual prediction logic
+        # Make a prediction using YOLOv8
+        results = model.predict(source=image)
 
-    return prediction
+        # Get the most confident prediction
+        predicted_class = results[0].boxes.cls[0].item()
 
-def process_video(file, filename):
-    video_path = os.path.join('uploads', filename)
-    file.save(video_path)
+        return {"status": "success", "predicted_class": int(predicted_class)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
-    cap = cv2.VideoCapture(video_path)
-    frame_results = []
+def process_video(file, filename, model):
+    try:
+        video_path = os.path.join('uploads', filename)
+        file.save(video_path)
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+        cap = cv2.VideoCapture(video_path)
+        frame_results = []
 
-        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        resized_frame = cv2.resize(gray_frame, (224, 224))  # Adjust size based on your model
-        input_frame = np.expand_dims(resized_frame, axis=0)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-        # frame_prediction = model.predict(input_frame)
-        frame_prediction = "Healthy Skin"  # Replace with actual prediction logic
+            # Make a prediction using YOLOv8 for each frame
+            results = model.predict(source=frame)
+            
+            # Get the most confident prediction for the frame
+            predicted_class = results[0].boxes.cls[0].item()
+            frame_results.append(predicted_class)
 
-        frame_results.append(frame_prediction)
+        cap.release()
 
-    cap.release()
+        # Determine the overall result based on the most common prediction
+        overall_result = max(set(frame_results), key=frame_results.count)
 
-    overall_result = max(set(frame_results), key=frame_results.count)
+        return {"status": "success", "overall_result": int(overall_result)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
-    return overall_result
