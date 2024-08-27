@@ -4,16 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detection Result</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Detection Result</h1>
-    {% if result.status == "success" %}
-        <!-- <p><strong>Predicted Class:</strong> {{ result.predicted_class }}</p> -->
-        <p><strong>Disease Name:</strong> {{ result.disease_name }}</p>
-    {% else %}
-        <p><strong>Error:</strong> {{ result.message }}</p>
-    {% endif %}
-    <a href="{{ url_for('index') }}">Go back</a>
+
+    <!-- Include Navigation Bar -->
+    {% include 'partials/navbar.html' %}
+
+    <!-- Main Content -->
+    <div class="container mt-5 mb-5">
+        <h1 class="text-center mb-4">Detection Result</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card p-4 border rounded bg-light">
+                    {% if result.status == "success" %}
+                        <p><strong>Disease Name:</strong> {{ result.disease_name }}</p>
+                        {% if disease %}
+                            <p><strong>Symptoms:</strong> {{ disease.symptoms }}</p>
+                            <p><strong>Recommendations:</strong> {{ disease.recommendations }}</p>
+                        {% else %}
+                            <p>No additional details available for this disease.</p>
+                        {% endif %}
+                    {% else %}
+                        <p><strong>Error:</strong> {{ result.message }}</p>
+                    {% endif %}
+                    <div class="d-grid mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">Go Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    {% include 'partials/footer.html' %}
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Include the main.js file -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

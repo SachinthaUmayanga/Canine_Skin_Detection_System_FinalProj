@@ -1,7 +1,7 @@
+from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
 import os
-import hashlib
 import sqlite3
 from recognition import process_image, process_video
 
@@ -19,6 +19,12 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_disease_details(disease_name):
+    conn = get_db_connection()
+    disease = conn.execute('SELECT * FROM diseases WHERE class_name = ?', (disease_name,)).fetchone()
+    conn.close()
+    return disease
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -27,7 +33,18 @@ def index():
 from auth import auth
 app.register_blueprint(auth, url_prefix='/auth')
 
+def login_required(f):
+    """Decorator to require login for certain routes."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            flash('You need to log in first.', 'danger')
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/upload_image', methods=['GET', 'POST'])
+@login_required
 def upload_image():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -48,42 +65,40 @@ def upload_image():
             result = process_image(file_path)
             
             if result["status"] == "success":
-                flash(f'Detection successful: {result["disease_name"]}', 'success')
+                disease_details = get_disease_details(result["disease_name"])
+                return render_template('result.html', result=result, disease=disease_details)
             else:
                 flash(f'Error: {result["message"]}', 'danger')
+                return redirect(url_for('index'))
 
-            return render_template('result.html', result=result)
-
-    return render_template('upload_image.html')
-
-    
+    return render_template('index.html')
 
 @app.route('/upload_video', methods=['GET', 'POST'])
+@login_required
 def upload_video():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', 'danger')
-            return redirect(request.url)
+            return redirect(url_for('index'))
 
         file = request.files['file']
 
         if file.filename == '':
             flash('No selected file', 'danger')
-            return redirect(request.url)
+            return redirect(url_for('index'))
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             result = process_video(file, filename, app.config['UPLOAD_FOLDER'])
 
             if result["status"] == "success":
-                flash(f'Detection successful: {result["disease_name"]}', 'success')
+                disease_details = get_disease_details(result["disease_name"])
+                return render_template('result.html', result=result, disease=disease_details)
             else:
                 flash(f'Error: {result["message"]}', 'danger')
+                return redirect(url_for('index'))
 
-            return render_template('result.html', result=result)
-
-    return render_template('upload_video.html')
-
+    return redirect(url_for('index'))
 
 def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
@@ -92,7 +107,6 @@ def allowed_file(filename):
 @app.route('/about')
 def about():
     return render_template('about.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
