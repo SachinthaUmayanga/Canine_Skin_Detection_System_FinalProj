@@ -6,20 +6,26 @@ import sqlite3
 from recognition import process_image, process_video
 
 app = Flask(__name__)
-app.secret_key = '1111'
+app.secret_key = '1111'  # Secret key for session management and security
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+    os.makedirs(UPLOAD_FOLDER)  # Create upload folder if it doesn't exist
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def get_db_connection():
+    """
+    Establishes a connection to the SQLite database.
+    """
     conn = sqlite3.connect('site.db')
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row  # Allows accessing rows as dictionaries
     return conn
 
 def get_disease_details(disease_name):
+    """
+    Fetches disease details from the database based on the disease name.
+    """
     conn = get_db_connection()
     disease = conn.execute('SELECT * FROM diseases WHERE class_name = ?', (disease_name,)).fetchone()
     conn.close()
@@ -27,6 +33,9 @@ def get_disease_details(disease_name):
 
 @app.route('/')
 def index():
+    """
+    Renders the index page.
+    """
     return render_template('index.html')
 
 # Authentication Blueprint
@@ -34,18 +43,23 @@ from auth import auth
 app.register_blueprint(auth, url_prefix='/auth')
 
 def login_required(f):
-    """Decorator to require login for certain routes."""
+    """
+    Decorator to ensure that the user is logged in before accessing certain routes.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user' not in session:
             flash('You need to log in first.', 'danger')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login'))  # Redirect to login if not authenticated
         return f(*args, **kwargs)
     return decorated_function
 
 @app.route('/upload_image', methods=['GET', 'POST'])
 @login_required
 def upload_image():
+    """
+    Handles image upload and processing.
+    """
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', 'danger')
@@ -62,6 +76,7 @@ def upload_image():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             
+            # Process the uploaded image
             result = process_image(file_path)
             
             if result["status"] == "success":
@@ -76,6 +91,9 @@ def upload_image():
 @app.route('/upload_video', methods=['GET', 'POST'])
 @login_required
 def upload_video():
+    """
+    Handles video upload and processing.
+    """
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part', 'danger')
@@ -101,12 +119,18 @@ def upload_video():
     return redirect(url_for('index'))
 
 def allowed_file(filename):
+    """
+    Checks if the file extension is allowed.
+    """
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/about')
 def about():
+    """
+    Renders the about page.
+    """
     return render_template('about.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)  # Runs the Flask application in debug mode

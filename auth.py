@@ -5,12 +5,18 @@ import hashlib  # For password hashing
 auth = Blueprint('auth', __name__)
 
 def get_db_connection():
+    """
+    Establishes a connection to the SQLite database.
+    """
     conn = sqlite3.connect('site.db')
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row  # Allows accessing rows as dictionaries
     return conn
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Handles user login. Hashes the provided password and checks against the database.
+    """
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -38,6 +44,9 @@ def login():
 
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """
+    Handles user signup. Checks if the username already exists, hashes the password, and stores new user details.
+    """
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -73,12 +82,18 @@ def signup():
 
 @auth.route('/logout')
 def logout():
+    """
+    Logs out the current user by removing them from the session.
+    """
     session.pop('user', None)
     flash('Successfully logged out.', 'success')
     return redirect(url_for('index'))
 
 @auth.route('/change_profile', methods=['GET', 'POST'])
 def change_profile():
+    """
+    Allows the user to change their username and/or password.
+    """
     if 'user' not in session:
         return redirect(url_for('auth.login'))
 
@@ -97,6 +112,7 @@ def change_profile():
             return render_template('change_profile.html', username=current_username)
 
         if new_password:
+            # Hash the new password before updating
             hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
             cursor.execute('UPDATE users SET password = ? WHERE username = ?', (hashed_password, current_username))
             flash('Password successfully changed!', 'success')
