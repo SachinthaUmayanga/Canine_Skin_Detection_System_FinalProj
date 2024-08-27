@@ -1,69 +1,98 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.utils import secure_filename
 import os
-from auth import auth
-from recognition import process_image, process_video  # Import the recognition functions
-from ultralytics import YOLO
+import hashlib
+import sqlite3
+from recognition import process_image, process_video
 
 app = Flask(__name__)
 app.secret_key = '1111'
 
-# Load the YOLOv8 model and handle potential loading errors
-try:
-    model = YOLO('last.pt')  # Load the YOLOv8 small model
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None  # Fallback if model loading fails
+# Configure upload folder
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Register the auth blueprint
-app.register_blueprint(auth)
+def get_db_connection():
+    conn = sqlite3.connect('site.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    # Check if the user is logged in
-    if 'user' not in session:
-        return redirect(url_for('auth.login'))
+# Authentication Blueprint
+from auth import auth
+app.register_blueprint(auth, url_prefix='/auth')
 
-    if 'file' not in request.files:
-        return redirect(url_for('index'))
-    file = request.files['file']
-    if file.filename == '':
-        return redirect(url_for('index'))
+@app.route('/upload_image', methods=['GET', 'POST'])
+def upload_image():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(request.url)
 
-    if model is None:
-        return render_template('error.html', message="Model failed to load. Please contact support.")
+        file = request.files['file']
 
-    try:
-        filename = file.filename
-        file_extension = os.path.splitext(filename)[1].lower()
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(request.url)
 
-        if file_extension in ['.jpg', '.jpeg', '.png']:
-            result = process_image(file, model)  # Pass the model to the function
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            
+            result = process_image(file_path)
+            
             if result["status"] == "success":
-                return render_template('result.html', prediction=result["predicted_class"])
+                flash(f'Detection successful: {result["disease_name"]}', 'success')
             else:
-                return render_template('error.html', message=f"Image processing failed: {result['message']}")
+                flash(f'Error: {result["message"]}', 'danger')
 
-        elif file_extension in ['.mp4', '.avi', '.mov']:
-            result = process_video(file, filename, model)  # Pass the model to the function
+            return render_template('result.html', result=result)
+
+    return render_template('upload_image.html')
+
+    
+
+@app.route('/upload_video', methods=['GET', 'POST'])
+def upload_video():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(request.url)
+
+        file = request.files['file']
+
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            result = process_video(file, filename, app.config['UPLOAD_FOLDER'])
+
             if result["status"] == "success":
-                return render_template('result.html', prediction=result["overall_result"])
+                flash(f'Detection successful: {result["disease_name"]}', 'success')
             else:
-                return render_template('error.html', message=f"Video processing failed: {result['message']}")
+                flash(f'Error: {result["message"]}', 'danger')
 
-    except Exception as e:
-        return render_template('error.html', message=f"An error occurred during file processing: {str(e)}")
+            return render_template('result.html', result=result)
 
-    return redirect(url_for('index'))
+    return render_template('upload_video.html')
+
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/about')
 def about():
     return render_template('about.html')
 
 
-if __name__ == "__main__":
-    os.makedirs('uploads', exist_ok=True)
+if __name__ == '__main__':
     app.run(debug=True)
