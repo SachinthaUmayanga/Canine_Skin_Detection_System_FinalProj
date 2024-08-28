@@ -16,13 +16,6 @@ except Exception as e:
 def process_image(file_path):
     """
     Process a single image file to detect the disease.
-
-    Args:
-        file_path (str): Path to the image file.
-
-    Returns:
-        dict: A dictionary containing the status of the operation,
-              the predicted class, and the disease name.
     """
     try:
         if model is None:
@@ -45,15 +38,6 @@ def process_image(file_path):
 def process_video(file, filename, upload_folder):
     """
     Process a video file to detect the most common disease across all frames.
-
-    Args:
-        file (werkzeug.datastructures.FileStorage): The video file object.
-        filename (str): The name of the video file.
-        upload_folder (str): The folder path where the video file will be saved.
-
-    Returns:
-        dict: A dictionary containing the status of the operation,
-              the most common prediction across frames, and the disease name.
     """
     try:
         if model is None:
