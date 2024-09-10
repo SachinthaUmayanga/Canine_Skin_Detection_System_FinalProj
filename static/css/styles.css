@@ -51,3 +51,7 @@ body {
     justify-content: space-between;
 }
 
+.custom-logo-size {
+    width: 300px;
+    height: auto;
+}
