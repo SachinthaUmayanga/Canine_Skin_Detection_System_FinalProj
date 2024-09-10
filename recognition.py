@@ -49,24 +49,51 @@ def process_video(file, filename, upload_folder):
 
         cap = cv2.VideoCapture(video_path)
         frame_results = []
+        frame_count = 0
+
+        # Check if the video is successfully opened
+        if not cap.isOpened():
+            return {"status": "error", "message": "Cannot open video file"}
+
+        print(f"Processing video: {video_path}")
 
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
+                print(f"End of video reached at frame {frame_count}")
                 break
 
-            # Make a prediction using YOLOv8 for each frame
-            results = model.predict(source=frame)
+            frame_count += 1
+            print(f"Processing frame {frame_count}")
+
+            # Convert frame to RGB (YOLO model expects RGB format)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            # Process the frame
+            result = process_image(frame_rgb)
             
-            # Get the most confident prediction for the frame
-            predicted_class = results[0].boxes.cls[0].item()
-            frame_results.append(predicted_class)
+            # Log the result for debugging
+            if result["status"] == "success":
+                print(f"Frame {frame_count}: Detected class {result['predicted_class']} ({result['disease_name']})")
+                frame_results.append(result["predicted_class"])
+            else:
+                print(f"Frame {frame_count}: {result['message']}")
+                frame_results.append(None)
 
         cap.release()
 
+        # Filter out None values (frames where no object was detected)
+        frame_results = [result for result in frame_results if result is not None]
+
+        if len(frame_results) == 0:
+            return {"status": "error", "message": "No disease detected in the video frames"}
+
         # Determine the overall result based on the most common prediction across frames
         overall_result = max(set(frame_results), key=frame_results.count)
+        print(f"Overall result: {overall_result} ({class_names[int(overall_result)]})")
 
         return {"status": "success", "overall_result": int(overall_result), "disease_name": class_names[int(overall_result)]}
+
     except Exception as e:
+        print(f"Error during video processing: {e}")
         return {"status": "error", "message": str(e)}

@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 import sqlite3
@@ -36,7 +36,7 @@ def index():
     """
     Renders the index page.
     """
-    return render_template('index.html')
+    return render_template('index.html')  # This matches the 'Home' link in the navbar
 
 # Authentication Blueprint
 from auth import auth
@@ -53,6 +53,13 @@ def login_required(f):
             return redirect(url_for('auth.login'))  # Redirect to login if not authenticated
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """
+    Serves the uploaded files from the 'uploads' directory.
+    """
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/upload_image', methods=['GET', 'POST'])
 @login_required
@@ -81,12 +88,13 @@ def upload_image():
             
             if result["status"] == "success":
                 disease_details = get_disease_details(result["disease_name"])
-                return render_template('result.html', result=result, disease=disease_details)
+                # Pass only the filename (not full path)
+                return render_template('result.html', result=result, disease=disease_details, image_filename=filename)
             else:
                 flash(f'Error: {result["message"]}', 'danger')
                 return redirect(url_for('index'))
 
-    return render_template('index.html')
+    return render_template('index.html', preloader=True)
 
 @app.route('/upload_video', methods=['GET', 'POST'])
 @login_required
@@ -111,7 +119,9 @@ def upload_video():
 
             if result["status"] == "success":
                 disease_details = get_disease_details(result["disease_name"])
-                return render_template('result.html', result=result, disease=disease_details)
+                # You can save the first frame or pass a frame as an image (if needed)
+                frame_image_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)  # Assuming first frame or thumbnail is saved
+                return render_template('result.html', result=result, disease=disease_details, image_url=frame_image_url)
             else:
                 flash(f'Error: {result["message"]}', 'danger')
                 return redirect(url_for('index'))
@@ -130,7 +140,7 @@ def about():
     """
     Renders the about page.
     """
-    return render_template('about.html')
+    return render_template('about.html')  # Matches the 'About Us' link
 
 if __name__ == '__main__':
     app.run(debug=True)  # Runs the Flask application in debug mode

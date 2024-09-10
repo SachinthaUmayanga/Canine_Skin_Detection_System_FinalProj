@@ -21,9 +21,16 @@
                 <div class="card p-4 border rounded bg-light">
                     {% if result.status == "success" %}
                         <p><strong>Disease Name:</strong> {{ result.disease_name }}</p>
+
+                        <!-- Display the uploaded image -->
+                        <div class="text-center">
+                            <img src="{{ url_for('uploaded_file', filename=image_filename) }}" alt="Uploaded Image" class="img-fluid mb-3">
+                        </div>
+
                         {% if disease %}
                             <p><strong>Symptoms:</strong> {{ disease.symptoms }}</p>
                             <p><strong>Recommendations:</strong> {{ disease.recommendations }}</p>
+                            <p><strong>Details:</strong> {{ disease.details }}</p>
                         {% else %}
                             <p>No additional details available for this disease.</p>
                         {% endif %}
