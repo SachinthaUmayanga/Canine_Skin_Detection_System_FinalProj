@@ -1,11 +1,16 @@
 body {
     background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1; /* Ensures the main content takes up available space */
 }
 
 .card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds subtle shadow to the login card */
 }
 
 .btn-purple {
@@ -16,6 +21,18 @@ body {
 .btn-purple:hover {
     background-color: #621d76;
     color: white;
+}
+
+.mt-5 {
+    margin-top: 3rem !important; /* Adjust margin */
+}
+footer {
+    background-color: #f8f9fa;
+    padding: 1rem 0;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
 }
 
 /* Smooth transition for background and shadow */
