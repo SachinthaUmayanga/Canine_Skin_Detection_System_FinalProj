@@ -25,11 +25,6 @@
                 <div class="card p-4">
                     <div class="card-body">
                         <h3 class="text-center mb-4">Create Your Account</h3>
-                        
-                        <!-- Display error if there's any -->
-                        {% if error %}
-                            <div class="alert alert-danger">{{ error }}</div>
-                        {% endif %}
 
                         <!-- Sign-Up Form starts -->
                         <form action="{{ url_for('auth.signup') }}" method="POST">
@@ -75,6 +70,7 @@
 
     <!-- Include the main.js file -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 
 </body>
 </html>
