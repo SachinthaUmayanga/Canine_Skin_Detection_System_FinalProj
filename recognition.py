@@ -1,8 +1,7 @@
-from ultralytics import YOLO
-from PIL import Image
 import cv2
 import numpy as np
 import os
+from ultralytics import YOLO
 
 # Load the YOLOv8 model
 try:
@@ -13,19 +12,15 @@ except Exception as e:
     model = None
     class_names = []
 
-def process_image(file_path):
+def process_image(image):
     """
-    Process a single image file to detect the disease.
+    Process a single image (or video frame) to detect the disease.
     """
     try:
         if model is None:
             return {"status": "error", "message": "Model not loaded"}
 
-        # Load image with PIL and convert to a numpy array
-        image = Image.open(file_path)
-        image = np.array(image)
-
-        # Make a prediction using YOLOv8
+        # Make a prediction using YOLOv8 on the image/frame directly
         results = model.predict(source=image)
 
         # Get the most confident prediction (assuming single object detection per image)
@@ -69,7 +64,7 @@ def process_video(file, filename, upload_folder):
             # Convert frame to RGB (YOLO model expects RGB format)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            # Process the frame
+            # Process the frame directly
             result = process_image(frame_rgb)
             
             # Log the result for debugging

@@ -18,6 +18,22 @@ body {
     color: white;
 }
 
+/* Smooth transition for background and shadow */
+#navbar {
+    transition: background-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Navbar styling when it becomes fixed */
+.fixed-top.scrolled {
+    background-color: #0d47a1 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Prevent content jump when navbar becomes fixed */
+body.fixed-navbar {
+    padding-top: 56px; /* Adjust based on the height of your navbar */
+}
+
 /* Custom CSS for toast animation */
 @keyframes slideIn {
     from {
@@ -55,3 +71,4 @@ body {
     width: 300px;
     height: auto;
 }
+
