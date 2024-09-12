@@ -71,6 +71,16 @@
     <!-- Include the main.js file -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+    <!-- Initialize Toasts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastElements = document.querySelectorAll('.toast');
+            toastElements.forEach(function(toastElement) {
+                var toastInstance = new bootstrap.Toast(toastElement);
+                toastInstance.show();
+            });
+        });
+    </script>
 
 </body>
 </html>

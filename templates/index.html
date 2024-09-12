@@ -20,6 +20,9 @@
     <!-- Toast Notifications -->
     {% include 'partials/_toasts.html' %}
 
+    <!-- Include Preloader -->
+     {% include 'partials/preloader.html' %}
+
     <!-- Main Content -->
     <div class="container mt-5 mb-5" id="upload-section">
         <h1 class="text-center mb-4">Upload an Image or Video for Skin Condition Detection</h1>
@@ -123,5 +126,9 @@
             });
         });
     </script>
+    
+    <!-- Include the preloader.js file -->
+    <script src="{{ url_for('static', filename='js/preloader.js') }}"></script>
+
 </body>
 </html>
