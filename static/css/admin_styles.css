@@ -1,0 +1,27 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    width: 220px;
+    background-color: #343a40;
+    padding-top: 20px;
+}
+.sidebar a {
+    padding: 10px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+}
+.sidebar a:hover {
+    background-color: #575d63;
+}
+.content {
+    margin-left: 230px;
+    padding: 20px;
+}
+.card {
+    margin-bottom: 20px;
+}

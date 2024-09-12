@@ -1,12 +1,21 @@
 from functools import wraps
+from auth import auth
+from admin import admin
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 import sqlite3
 from recognition import process_image, process_video
+from db import get_db_connection  # Import from db.py
 
 app = Flask(__name__)
 app.secret_key = '1111'  # Secret key for session management and security
+
+# Authentication Blueprint
+app.register_blueprint(auth, url_prefix='/auth')
+
+# Register the admin blueprint
+app.register_blueprint(admin, url_prefix='/admin')
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
@@ -14,13 +23,13 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)  # Create upload folder if it doesn't exist
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def get_db_connection():
-    """
-    Establishes a connection to the SQLite database.
-    """
-    conn = sqlite3.connect('site.db')
-    conn.row_factory = sqlite3.Row  # Allows accessing rows as dictionaries
-    return conn
+# def get_db_connection():
+#     """
+#     Establishes a connection to the SQLite database.
+#     """
+#     conn = sqlite3.connect('site.db')
+#     conn.row_factory = sqlite3.Row  # Allows accessing rows as dictionaries
+#     return conn
 
 def get_disease_details(disease_name):
     """
@@ -38,9 +47,6 @@ def index():
     """
     return render_template('index.html')  # This matches the 'Home' link in the navbar
 
-# Authentication Blueprint
-from auth import auth
-app.register_blueprint(auth, url_prefix='/auth')
 
 def login_required(f):
     """

@@ -14,9 +14,6 @@ def get_db_connection():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    """
-    Handles user login. Hashes the provided password and checks against the database.
-    """
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -34,6 +31,7 @@ def login():
 
         if user:
             session['user'] = user['username']
+            session['role'] = user['role']  # Add the role to the session
             flash('Successfully logged in!', 'success')
             return redirect(url_for('index'))
         else:
