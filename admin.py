@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash
 from db import get_db_connection  # Import from db.py
 
 admin = Blueprint('admin', __name__)
@@ -21,3 +21,59 @@ def admin_dashboard():
     # Pass the data to the dashboard template
     return render_template('admin_dashboard.html', total_users=total_users)
 # , total_uploads=total_uploads, total_reports=total_reports, recent_uploads=recent_uploads
+
+@admin.route('/manage_users')
+def manage_users():
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied! Admins only.', 'danger')
+        return redirect(url_for('index'))
+
+    # Fetch users from the database (including full_name and role)
+    conn = get_db_connection()
+    users = conn.execute('SELECT id, username, full_name, role FROM users').fetchall()
+    conn.close()
+
+    return render_template('manage_users.html', users=users)
+
+@admin.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
+def edit_user(user_id):
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied! Admins only.', 'danger')
+        return redirect(url_for('index'))
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+
+    if request.method == 'POST':
+        username = request.form['username']
+        full_name = request.form['full_name']
+        role = request.form['role']
+        dob = request.form['dob']
+        nic = request.form['nic']
+        address = request.form['address']
+
+        # Update the user with new data
+        conn.execute('UPDATE users SET username = ?, full_name = ?, role = ?, dob = ?, nic = ?, address = ? WHERE id = ?',
+                     (username, full_name, role, dob, nic, address, user_id))
+        conn.commit()
+        conn.close()
+
+        flash('User updated successfully!', 'success')
+        return redirect(url_for('admin.manage_users'))
+
+    conn.close()
+    return render_template('admin/edit_user.html', user=user)
+
+@admin.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied! Admins only.', 'danger')
+        return redirect(url_for('index'))
+
+    conn = get_db_connection()
+    conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+
+    flash('User deleted successfully!', 'danger')
+    return redirect(url_for('admin.manage_users'))

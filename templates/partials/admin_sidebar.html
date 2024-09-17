@@ -1,0 +1,24 @@
+<!-- Sidebar -->
+<div class="sidebar">
+    <a href="{{ url_for('index') }}" class="{% if request.path == url_for('index') %}active{% endif %}">
+        <i class="fas fa-home"></i> Home
+    </a>
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="{% if request.path == url_for('admin.admin_dashboard') %}active{% endif %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin.manage_users') }}" class="{% if request.path == url_for('admin.manage_users') %}active{% endif %}">
+        <i class="fas fa-users"></i> Manage Users
+    </a>
+    <a href="#" class="">
+        <i class="fas fa-upload"></i> Upload Logs
+    </a>
+    <a href="#" class="">
+        <i class="fas fa-file-alt"></i> Disease Reports
+    </a>
+    <a href="#" class="">
+        <i class="fas fa-cog"></i> Settings
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="{% if request.path == url_for('auth.logout') %}active{% endif %}">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</div>

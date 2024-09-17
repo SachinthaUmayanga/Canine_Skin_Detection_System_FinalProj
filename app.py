@@ -23,14 +23,6 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)  # Create upload folder if it doesn't exist
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# def get_db_connection():
-#     """
-#     Establishes a connection to the SQLite database.
-#     """
-#     conn = sqlite3.connect('site.db')
-#     conn.row_factory = sqlite3.Row  # Allows accessing rows as dictionaries
-#     return conn
-
 def get_disease_details(disease_name):
     """
     Fetches disease details from the database based on the disease name.
