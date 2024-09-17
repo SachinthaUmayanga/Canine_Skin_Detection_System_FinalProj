@@ -45,16 +45,20 @@ def edit_user(user_id):
     user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
 
     if request.method == 'POST':
-        username = request.form['username']
-        full_name = request.form['full_name']
-        role = request.form['role']
-        dob = request.form['dob']
-        nic = request.form['nic']
-        address = request.form['address']
+        username = request.form.get('username')
+        role = request.form.get('role')
+        full_name = request.form.get('full_name')
+        dob = request.form.get('dob')
+        nic = request.form.get('nic')
+        address = request.form.get('address')
 
-        # Update the user with new data
-        conn.execute('UPDATE users SET username = ?, full_name = ?, role = ?, dob = ?, nic = ?, address = ? WHERE id = ?',
-                     (username, full_name, role, dob, nic, address, user_id))
+        # Validate and update user details
+        if not username or not role or not full_name or not dob or not nic or not address:
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('admin.edit_user', user_id=user_id))
+
+        conn.execute('UPDATE users SET username = ?, role = ?, full_name = ?, dob = ?, nic = ?, address = ? WHERE id = ?',
+                     (username, role, full_name, dob, nic, address, user_id))
         conn.commit()
         conn.close()
 
@@ -62,7 +66,8 @@ def edit_user(user_id):
         return redirect(url_for('admin.manage_users'))
 
     conn.close()
-    return render_template('admin/edit_user.html', user=user)
+    return render_template('edit_user.html', user=user)
+
 
 @admin.route('/delete_user/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
