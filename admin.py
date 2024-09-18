@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session
 from db import get_db_connection  # Import from db.py
+import hashlib
 
 admin = Blueprint('admin', __name__)
 
@@ -19,8 +20,8 @@ def admin_dashboard():
     conn.close()
 
     # Pass the data to the dashboard template
-    return render_template('admin_dashboard.html', total_users=total_users)
-# , total_uploads=total_uploads, total_reports=total_reports, recent_uploads=recent_uploads
+    return render_template('admin/admin_dashboard.html', total_users=total_users)
+# , total_uploads=total_uploads, total_reports=total_reports, recent_uploads=recent_uploads)
 
 @admin.route('/manage_users')
 def manage_users():
@@ -33,7 +34,7 @@ def manage_users():
     users = conn.execute('SELECT id, username, full_name, role FROM users').fetchall()
     conn.close()
 
-    return render_template('manage_users.html', users=users)
+    return render_template('admin/manage_users.html', users=users)
 
 @admin.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 def edit_user(user_id):
@@ -66,8 +67,7 @@ def edit_user(user_id):
         return redirect(url_for('admin.manage_users'))
 
     conn.close()
-    return render_template('edit_user.html', user=user)
-
+    return render_template('admin/edit_user.html', user=user)
 
 @admin.route('/delete_user/<int:user_id>', methods=['POST'])
 def delete_user(user_id):
@@ -82,3 +82,40 @@ def delete_user(user_id):
 
     flash('User deleted successfully!', 'danger')
     return redirect(url_for('admin.manage_users'))
+
+@admin.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied! Admins only.', 'danger')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        # Retrieve form data
+        username = request.form['username']
+        full_name = request.form['full_name']
+        dob = request.form['dob']
+        nic = request.form['nic']
+        address = request.form['address']
+        role = request.form['role']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        # Validate password confirmation
+        if password != confirm_password:
+            flash('Passwords do not match!', 'danger')
+            return redirect(url_for('admin.add_user'))
+
+        # Hash the password
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+        # Insert new user into the database
+        conn = get_db_connection()
+        conn.execute('INSERT INTO users (username, full_name, dob, nic, address, role, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                     (username, full_name, dob, nic, address, role, hashed_password))
+        conn.commit()
+        conn.close()
+
+        flash('New user added successfully!', 'success')
+        return redirect(url_for('admin.manage_users'))
+
+    return render_template('admin/add_user.html')

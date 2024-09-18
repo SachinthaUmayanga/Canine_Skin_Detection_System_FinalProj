@@ -57,7 +57,10 @@
                             <textarea class="form-control" id="address" name="address" required>{{ user.address }}</textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Update User</button>
+                        <div class="d-flex justify-content-start">
+                            <button type="submit" class="btn btn-primary me-3">Update User</button>
+                            <a href="{{ url_for('admin.manage_users') }}" class="btn btn-secondary me-3">Back</a>
+                        </div>
                     </form>
                 </div>
             </div>
