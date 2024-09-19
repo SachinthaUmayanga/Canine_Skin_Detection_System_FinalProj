@@ -23,6 +23,7 @@ def admin_dashboard():
     return render_template('admin/admin_dashboard.html', total_users=total_users, total_reports=total_reports)
 # , total_uploads=total_uploads, recent_uploads=recent_uploads)
 
+# Users route
 @admin.route('/manage_users')
 def manage_users():
     if 'user' not in session or session.get('role') != 'admin':
@@ -120,6 +121,7 @@ def add_user():
 
     return render_template('admin/add_user.html')
 
+# Disease route
 @admin.route('/disease_reports')
 def disease_reports():
     conn = get_db_connection()
@@ -127,3 +129,45 @@ def disease_reports():
     conn.close()
 
     return render_template('admin/disease_reports.html', diseases=diseases)
+
+@admin.route('/edit_disease/<int:disease_id>', methods=['GET', 'POST'])
+def edit_disease(disease_id):
+    conn = get_db_connection()
+    
+    # Fetch the disease details for editing
+    disease = conn.execute('SELECT * FROM diseases WHERE disease_id = ?', (disease_id,)).fetchone()
+
+    if not disease:
+        flash('Disease not found!', 'danger')
+        return redirect(url_for('admin.disease_list'))  # Redirect to disease list if disease is not found
+
+    if request.method == 'POST':
+        # Retrieve updated data from the form
+        class_name = request.form['class_name']
+        symptoms = request.form['symptoms']
+        recommendations = request.form['recommendations']
+        details = request.form['details']
+
+        # Update disease in the database
+        conn.execute('UPDATE diseases SET class_name = ?, symptoms = ?, recommendations = ?, details = ? WHERE disease_id = ?',
+                     (class_name, symptoms, recommendations, details, disease_id))
+        conn.commit()
+        conn.close()
+
+        flash('Disease updated successfully!', 'success')
+        return redirect(url_for('admin.disease_list'))
+
+    conn.close()
+    return render_template('admin/edit_disease.html', disease=disease)
+
+@admin.route('/delete_disease/<int:disease_id>', methods=['POST'])
+def delete_disease(disease_id):
+    conn = get_db_connection()
+    
+    # Delete the disease from the database
+    conn.execute('DELETE FROM diseases WHERE disease_id = ?', (disease_id,))
+    conn.commit()
+    conn.close()
+
+    flash('Disease deleted successfully!', 'success')
+    return redirect(url_for('admin.disease_list'))

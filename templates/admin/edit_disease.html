@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Disease</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_styles.css') }}">
+</head>
+<body>
+
+    <!-- Include Sidebar -->
+    {% include 'partials/admin_sidebar.html' %}
+
+    <!-- Main Content -->
+    <div class="content p-4">
+        <div class="container-fluid">
+            <h1 class="mb-4">Edit Disease</h1>
+
+            <div class="card">
+                <div class="card-header">
+                    Edit Disease Information
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.edit_disease', disease_id=disease['disease_id']) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="class_name" class="form-label">Class Name</label>
+                            <input type="text" class="form-control" id="class_name" name="class_name" value="{{ disease['class_name'] }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="symptoms" class="form-label">Symptoms</label>
+                            <textarea class="form-control" id="symptoms" name="symptoms" required>{{ disease['symptoms'] }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recommendations" class="form-label">Recommendations</label>
+                            <textarea class="form-control" id="recommendations" name="recommendations" required>{{ disease['recommendations'] }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="details" class="form-label">Details</label>
+                            <textarea class="form-control" id="details" name="details" required>{{ disease['details'] }}</textarea>
+                        </div>
+
+                        <div class="d-flex justify-content">
+                            <button type="submit" class="btn btn-primary me-3">Update Disease</button>
+                            <a href="{{ url_for('admin.disease_reports') }}" class="btn btn-secondary me-3">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    {% include 'partials/footer_admin.html' %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
