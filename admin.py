@@ -15,13 +15,13 @@ def admin_dashboard():
     conn = get_db_connection()
     total_users = conn.execute('SELECT COUNT(*) FROM users').fetchone()[0]
     # total_uploads = conn.execute('SELECT COUNT(*) FROM uploads').fetchone()[0]
-    # total_reports = conn.execute('SELECT COUNT(*) FROM reports').fetchone()[0]
+    total_reports = conn.execute('SELECT COUNT(*) FROM diseases').fetchone()[0]
     # recent_uploads = conn.execute('SELECT filename, upload_date, processed, result FROM uploads ORDER BY upload_date DESC LIMIT 5').fetchall()
     conn.close()
 
     # Pass the data to the dashboard template
-    return render_template('admin/admin_dashboard.html', total_users=total_users)
-# , total_uploads=total_uploads, total_reports=total_reports, recent_uploads=recent_uploads)
+    return render_template('admin/admin_dashboard.html', total_users=total_users, total_reports=total_reports)
+# , total_uploads=total_uploads, recent_uploads=recent_uploads)
 
 @admin.route('/manage_users')
 def manage_users():
@@ -119,3 +119,11 @@ def add_user():
         return redirect(url_for('admin.manage_users'))
 
     return render_template('admin/add_user.html')
+
+@admin.route('/disease_reports')
+def disease_reports():
+    conn = get_db_connection()
+    diseases = conn.execute('SELECT * FROM diseases').fetchall()
+    conn.close()
+
+    return render_template('admin/disease_reports.html', diseases=diseases)

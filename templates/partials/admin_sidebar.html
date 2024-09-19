@@ -12,7 +12,7 @@
     <a href="#" class="">
         <i class="fas fa-upload"></i> Upload Logs
     </a>
-    <a href="#" class="">
+    <a href="{{ url_for('admin.disease_reports') }}" class="{% if request.path == url_for('admin.disease_reports') %}active{% endif %}">
         <i class="fas fa-file-alt"></i> Disease Reports
     </a>
     <a href="#" class="">
