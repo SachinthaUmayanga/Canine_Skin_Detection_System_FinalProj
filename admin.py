@@ -171,3 +171,28 @@ def delete_disease(disease_id):
 
     flash('Disease deleted successfully!', 'success')
     return redirect(url_for('admin.disease_list'))
+
+@admin.route('/add_disease', methods=['GET', 'POST'])
+def add_disease():
+    if 'user' not in session or session.get('role') != 'admin':
+        flash('Access denied! Admins only.', 'danger')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        # Retrieve form data
+        class_name = request.form['class_name']
+        symptoms = request.form['symptoms']
+        recommendations = request.form['recommendations']
+        details = request.form['details']
+
+        # Insert the new disease into the database
+        conn = get_db_connection()
+        conn.execute('INSERT INTO diseases (class_name, symptoms, recommendations, details) VALUES (?, ?, ?, ?)',
+                     (class_name, symptoms, recommendations, details))
+        conn.commit()
+        conn.close()
+
+        flash('New disease added successfully!', 'success')
+        return redirect(url_for('admin.disease_reports'))
+
+    return render_template('admin/add_disease.html')
