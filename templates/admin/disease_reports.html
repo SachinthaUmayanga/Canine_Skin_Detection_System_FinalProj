@@ -15,6 +15,9 @@
     <!-- Include Sidebar -->
     {% include 'partials/admin_sidebar.html' %}
 
+    <!-- Toast Notifications -->
+    {% include 'partials/_toasts.html' %}
+
     <!-- Main Content -->
     <div class="content p-4">
         <div class="container-fluid">
@@ -75,5 +78,8 @@
     
     <!-- Include the admin.js file -->
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+    <!-- Include the main.js file -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

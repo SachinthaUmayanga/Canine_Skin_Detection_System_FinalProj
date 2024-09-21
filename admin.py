@@ -155,7 +155,7 @@ def edit_disease(disease_id):
         conn.close()
 
         flash('Disease updated successfully!', 'success')
-        return redirect(url_for('admin.disease_list'))
+        return redirect(url_for('admin.disease_reports'))
 
     conn.close()
     return render_template('admin/edit_disease.html', disease=disease)
@@ -170,7 +170,7 @@ def delete_disease(disease_id):
     conn.close()
 
     flash('Disease deleted successfully!', 'success')
-    return redirect(url_for('admin.disease_list'))
+    return redirect(url_for('admin.disease_reports'))
 
 @admin.route('/add_disease', methods=['GET', 'POST'])
 def add_disease():
@@ -196,3 +196,4 @@ def add_disease():
         return redirect(url_for('admin.disease_reports'))
 
     return render_template('admin/add_disease.html')
+
