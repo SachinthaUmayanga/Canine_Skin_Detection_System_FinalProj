@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session
 from db import get_db_connection  # Import from db.py
 import hashlib
+from datetime import datetime
+# from werkzeug.util import secure_filename
+# import os
 
 admin = Blueprint('admin', __name__)
 
@@ -14,14 +17,14 @@ def admin_dashboard():
     # Fetch some statistics from the database
     conn = get_db_connection()
     total_users = conn.execute('SELECT COUNT(*) FROM users').fetchone()[0]
-    # total_uploads = conn.execute('SELECT COUNT(*) FROM uploads').fetchone()[0]
+    total_uploads = conn.execute('SELECT COUNT(*) FROM uploads').fetchone()[0]
     total_reports = conn.execute('SELECT COUNT(*) FROM diseases').fetchone()[0]
-    # recent_uploads = conn.execute('SELECT filename, upload_date, processed, result FROM uploads ORDER BY upload_date DESC LIMIT 5').fetchall()
+    recent_uploads = conn.execute('SELECT filename, upload_date, username, result FROM uploads ORDER BY upload_date DESC LIMIT 10').fetchall()
     conn.close()
 
     # Pass the data to the dashboard template
-    return render_template('admin/admin_dashboard.html', total_users=total_users, total_reports=total_reports)
-# , total_uploads=total_uploads, recent_uploads=recent_uploads)
+    return render_template('admin/admin_dashboard.html', total_users=total_users, total_reports=total_reports, total_uploads=total_uploads, recent_uploads=recent_uploads)
+
 
 # Users route
 @admin.route('/manage_users')
@@ -197,3 +200,33 @@ def add_disease():
 
     return render_template('admin/add_disease.html')
 
+
+
+# @admin.route('/upload_file', methods=['POST'])
+# def upload_file():
+#     if 'user' not in session or session.get('role') != 'admin':
+#         flash('Access denied! Admins only.', 'danger')
+#         return redirect(url_for('index'))
+
+#     if 'file' not in request.files:
+#         flash('No file part', 'danger')
+#         return redirect(url_for('admin_dashboard'))
+
+#     file = request.files['file']
+
+#     if file.filename == '':
+#         flash('No selected file', 'danger')
+#         return redirect(url_for('admin_dashboard'))
+
+#     if file:
+#         filename = secure_filename(file.filename)
+#         file.save(os.path.join('uploads', filename))
+
+#         # Insert the file upload log into the database
+#         conn = get_db_connection()
+#         conn.execute('INSERT INTO uploads (filename, upload_date) VALUES (?, ?)', (filename, datetime.now()))
+#         conn.commit()
+#         conn.close()
+
+#         flash('File uploaded successfully!', 'success')
+#         return redirect(url_for('admin_dashboard'))

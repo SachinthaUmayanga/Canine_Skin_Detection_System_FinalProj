@@ -63,7 +63,7 @@
                             <tr>
                                 <th>Filename</th>
                                 <th>Date Uploaded</th>
-                                <th>Processed</th>
+                                <th>Uploaded By</th>
                                 <th>Result</th>
                             </tr>
                         </thead>
@@ -72,8 +72,8 @@
                             <tr>
                                 <td>{{ upload.filename }}</td>
                                 <td>{{ upload.upload_date }}</td>
-                                <td>{{ 'Yes' if upload.processed else 'No' }}</td>
-                                <td>{{ upload.result or 'Pending' }}</td>
+                                <td>{{ upload.username }}</td> <!-- Display the username -->
+                                <td>{{ upload.result }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

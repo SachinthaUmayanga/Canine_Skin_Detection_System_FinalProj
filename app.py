@@ -80,12 +80,23 @@ def upload_image():
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
-            
+
             # Process the uploaded image
             result = process_image(file_path)
-            
+
             if result["status"] == "success":
-                disease_details = get_disease_details(result["disease_name"])
+                disease_name = result["disease_name"]
+                disease_details = get_disease_details(disease_name)
+
+                # Save the upload details and result to the database using the username
+                conn = get_db_connection()
+                conn.execute(
+                    'INSERT INTO uploads (filename, username, file_type, result) VALUES (?, ?, ?, ?)',
+                    (filename, session['user'], 'image', disease_name)
+                )
+                conn.commit()
+                conn.close()
+
                 # Pass only the filename (not full path)
                 return render_template('result.html', result=result, disease=disease_details, image_filename=filename)
             else:
@@ -93,6 +104,7 @@ def upload_image():
                 return redirect(url_for('index'))
 
     return render_template('index.html', preloader=True)
+
 
 @app.route('/upload_video', methods=['GET', 'POST'])
 @login_required
@@ -113,18 +125,32 @@ def upload_video():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            result = process_video(file, filename, app.config['UPLOAD_FOLDER'])
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+
+            # Process the video file
+            result = process_video(file_path, filename, app.config['UPLOAD_FOLDER'])
 
             if result["status"] == "success":
-                disease_details = get_disease_details(result["disease_name"])
-                # You can save the first frame or pass a frame as an image (if needed)
-                frame_image_url = os.path.join(app.config['UPLOAD_FOLDER'], filename)  # Assuming first frame or thumbnail is saved
-                return render_template('result.html', result=result, disease=disease_details, image_url=frame_image_url)
+                disease_name = result["disease_name"]
+                disease_details = get_disease_details(disease_name)
+
+                # Save the upload details and result to the database using the username
+                conn = get_db_connection()
+                conn.execute(
+                    'INSERT INTO uploads (filename, username, file_type, result) VALUES (?, ?, ?, ?)',
+                    (filename, session['user'], 'video', disease_name)
+                )
+                conn.commit()
+                conn.close()
+
+                return render_template('result.html', result=result, disease=disease_details, video_filename=filename)
             else:
                 flash(f'Error: {result["message"]}', 'danger')
                 return redirect(url_for('index'))
 
     return redirect(url_for('index'))
+
 
 def allowed_file(filename):
     """

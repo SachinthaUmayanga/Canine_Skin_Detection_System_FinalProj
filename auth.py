@@ -1,16 +1,9 @@
 from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 import sqlite3
 import hashlib  # For password hashing
+from db import get_db_connection  # Import from db.py
 
 auth = Blueprint('auth', __name__)
-
-def get_db_connection():
-    """
-    Establishes a connection to the SQLite database.
-    """
-    conn = sqlite3.connect('site.db')
-    conn.row_factory = sqlite3.Row  # Allows accessing rows as dictionaries
-    return conn
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
