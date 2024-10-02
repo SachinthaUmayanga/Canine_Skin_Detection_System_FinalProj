@@ -9,7 +9,7 @@
     <a href="{{ url_for('admin.manage_users') }}" class="{% if request.path == url_for('admin.manage_users') %}active{% endif %}">
         <i class="fas fa-users"></i> Manage Users
     </a>
-    <a href="#" class="">
+    <a href="{{ url_for('admin.upload_logs') }}" class="{% if request.path == url_for('admin.upload_logs') %}active{% endif %}">
         <i class="fas fa-upload"></i> Upload Logs
     </a>
     <a href="{{ url_for('admin.disease_reports') }}" class="{% if request.path == url_for('admin.disease_reports') %}active{% endif %}">
