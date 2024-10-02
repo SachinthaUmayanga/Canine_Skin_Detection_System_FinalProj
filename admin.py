@@ -200,33 +200,23 @@ def add_disease():
 
     return render_template('admin/add_disease.html')
 
+# Upload logs route
+@admin.route('/upload_logs')
+def upload_logs():
+    conn = get_db_connection()
+    uploads = conn.execute('SELECT * FROM uploads').fetchall()
+    conn.close()
+    
+    return render_template('admin/upload_logs.html', uploads=uploads)
 
+@admin.route('/delete_log/<int:upload_id>', methods=['POST'])
+def delete_log(upload_id):
+    conn = get_db_connection()
+    
+    # Delete the disease from the database
+    conn.execute('DELETE FROM uploads WHERE id = ?', (upload_id,))
+    conn.commit()
+    conn.close()
 
-# @admin.route('/upload_file', methods=['POST'])
-# def upload_file():
-#     if 'user' not in session or session.get('role') != 'admin':
-#         flash('Access denied! Admins only.', 'danger')
-#         return redirect(url_for('index'))
-
-#     if 'file' not in request.files:
-#         flash('No file part', 'danger')
-#         return redirect(url_for('admin_dashboard'))
-
-#     file = request.files['file']
-
-#     if file.filename == '':
-#         flash('No selected file', 'danger')
-#         return redirect(url_for('admin_dashboard'))
-
-#     if file:
-#         filename = secure_filename(file.filename)
-#         file.save(os.path.join('uploads', filename))
-
-#         # Insert the file upload log into the database
-#         conn = get_db_connection()
-#         conn.execute('INSERT INTO uploads (filename, upload_date) VALUES (?, ?)', (filename, datetime.now()))
-#         conn.commit()
-#         conn.close()
-
-#         flash('File uploaded successfully!', 'success')
-#         return redirect(url_for('admin_dashboard'))
+    flash('Log deleted successfully!', 'success')
+    return redirect(url_for('admin.upload_logs'))
