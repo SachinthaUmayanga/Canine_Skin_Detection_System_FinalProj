@@ -15,9 +15,9 @@
     <a href="{{ url_for('admin.disease_reports') }}" class="{% if request.path == url_for('admin.disease_reports') %}active{% endif %}">
         <i class="fas fa-file-alt"></i> Disease Reports
     </a>
-    <a href="#" class="">
+    <!-- <a href="#" class="">
         <i class="fas fa-cog"></i> Settings
-    </a>
+    </a> -->
     <a href="{{ url_for('auth.logout') }}" class="{% if request.path == url_for('auth.logout') %}active{% endif %}">
         <i class="fas fa-sign-out-alt"></i> Logout
     </a>

@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session, Response
 from db import get_db_connection  # Import from db.py
 import hashlib
 from datetime import datetime
-# from werkzeug.util import secure_filename
-# import os
+import csv
+from io import StringIO
 
 admin = Blueprint('admin', __name__)
 
@@ -220,3 +220,102 @@ def delete_log(upload_id):
 
     flash('Log deleted successfully!', 'success')
     return redirect(url_for('admin.upload_logs'))
+
+@admin.route('/filter_logs', methods=['GET'])
+def filter_logs():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    username = request.args.get('username')
+
+    conn = get_db_connection()
+
+    query = 'SELECT * FROM uploads WHERE 1=1'
+    params = []
+
+    if start_date and end_date:
+        query += ' AND upload_date BETWEEN ? AND ?'
+        params.extend([start_date, end_date])
+
+    if username:
+        query += ' AND username = ?'
+        params.append(username)
+
+    query += ' ORDER BY upload_date DESC'
+
+    uploads = conn.execute(query, tuple(params)).fetchall()
+    users = conn.execute('SELECT DISTINCT username FROM uploads').fetchall()
+    conn.close()
+
+    return render_template('admin/upload_logs.html', uploads=uploads, users=users)
+
+# Preview Report Route
+@admin.route('/preview_report', methods=['POST'])
+def preview_report():
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    username = request.form.get('username')
+
+    conn = get_db_connection()
+
+    # Build the query dynamically based on filters
+    query = 'SELECT * FROM uploads WHERE 1=1'
+    params = []
+    
+    if start_date and end_date:
+        query += ' AND upload_date BETWEEN ? AND ?'
+        params.extend([start_date, end_date])
+    
+    if username:
+        query += ' AND username = ?'
+        params.append(username)
+
+    uploads = conn.execute(query, tuple(params)).fetchall()
+    users = conn.execute('SELECT DISTINCT username FROM uploads').fetchall()
+    conn.close()
+
+    # Render the report preview page with the filtered uploads
+    return render_template('admin/upload_logs.html', uploads=uploads, users=users)
+
+# Generate and Download Report Route
+@admin.route('/generate_report', methods=['POST'])
+def generate_report():
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    username = request.form.get('username')
+
+    conn = get_db_connection()
+
+    # Build the query dynamically based on filters
+    query = 'SELECT * FROM uploads WHERE 1=1'
+    params = []
+    
+    if start_date and end_date:
+        query += ' AND upload_date BETWEEN ? AND ?'
+        params.extend([start_date, end_date])
+    
+    if username:
+        query += ' AND username = ?'
+        params.append(username)
+
+    uploads = conn.execute(query, tuple(params)).fetchall()
+    conn.close()
+
+    # Generate CSV
+    si = StringIO()
+    csv_writer = csv.writer(si)
+
+    # Add headers
+    csv_writer.writerow(['ID', 'Filename', 'Upload Date', 'Uploaded By', 'Result'])
+
+    # Add data rows
+    for upload in uploads:
+        csv_writer.writerow([upload['id'], upload['filename'], upload['upload_date'], upload['username'], upload['result']])
+
+    # Create the CSV response
+    output = si.getvalue()
+    si.close()
+
+    response = Response(output, mimetype='text/csv')
+    response.headers['Content-Disposition'] = 'attachment; filename=upload_logs_report.csv'
+
+    return response
