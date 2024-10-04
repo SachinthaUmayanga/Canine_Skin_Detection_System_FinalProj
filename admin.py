@@ -245,7 +245,7 @@ def filter_logs():
     users = conn.execute("SELECT DISTINCT username FROM uploads").fetchall()
     conn.close()
 
-    return render_template('admin_upload_logs.html', uploads=uploads, users=users)
+    return render_template('admin/upload_logs.html', uploads=uploads, users=users)
 
 #  Route to generate PDF report
 @admin.route('/generate_pdf_report', methods=['GET'])
