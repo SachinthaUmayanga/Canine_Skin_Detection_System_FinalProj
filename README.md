@@ -41,20 +41,24 @@ This Flask-based web application is designed for canine skin disease detection. 
 
     - On Windows:
 
+        ```bash
         python -m venv env
         env\Scripts\activate
 
     - On macOS/Linux:
 
+        ```bash
         python3 -m venv env
         source env/bin/activate
 
 4. Install the project dependencies:
 
+    ```bash
     pip install -r requirements.txt
 
 5. Run the application
 
+    ```bash
     flask run
 
 The application should now be running at http://127.0.0.1:5000/.
