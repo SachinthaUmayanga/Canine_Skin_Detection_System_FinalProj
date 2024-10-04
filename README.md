@@ -1,2 +1,47 @@
-# Canine_Skin_Detection_System_FinalProj
- TopUp Final Project
+# Canine Skin Detection System
+This Flask-based web application is designed for canine skin disease detection. The system allows users to upload images and videos for detection, generate reports, and manage admin functionalities like viewing and filtering upload logs.
+
+## Features
+
+- Upload images and videos for detection.
+- Generate and download PDF reports.
+- Filter logs based on date range and user.
+- Toast notifications for various system actions.
+- Admin dashboard for managing upload logs.
+- Bootstrap 5.3 for responsive design.
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Admin Routes](#admin-routes)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Installation
+
+### Prerequisites
+
+- Python 3.8+
+- Virtual Environment (optional but recommended)
+- Flask
+
+### Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/canine-skin-detection.git
+
+2. Navigate to the project directory:
+
+    cd canine-skin-detection
+
+3. Create and activate a virtual environment (optional):
+
+### On Windows:
+
+        python -m venv env
+        env\Scripts\activate
+
+
