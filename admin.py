@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session, Response
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session, Response,make_response
 from db import get_db_connection  # Import from db.py
-import hashlib
-from datetime import datetime
-import csv
-from io import StringIO
+import hashlib, datetime, csv
+from io import StringIO, BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 admin = Blueprint('admin', __name__)
 
@@ -223,99 +223,112 @@ def delete_log(upload_id):
 
 @admin.route('/filter_logs', methods=['GET'])
 def filter_logs():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    username = request.args.get('username')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    username = request.args.get('username', '')
 
     conn = get_db_connection()
-
-    query = 'SELECT * FROM uploads WHERE 1=1'
+    query = "SELECT id, filename, upload_date, username, result FROM uploads WHERE 1=1"
     params = []
 
-    if start_date and end_date:
-        query += ' AND upload_date BETWEEN ? AND ?'
-        params.extend([start_date, end_date])
-
+    if start_date:
+        query += " AND upload_date >= ?"
+        params.append(start_date)
+    if end_date:
+        query += " AND upload_date <= ?"
+        params.append(end_date)
     if username:
-        query += ' AND username = ?'
+        query += " AND username = ?"
         params.append(username)
 
-    query += ' ORDER BY upload_date DESC'
-
-    uploads = conn.execute(query, tuple(params)).fetchall()
-    users = conn.execute('SELECT DISTINCT username FROM uploads').fetchall()
+    uploads = conn.execute(query, params).fetchall()
+    users = conn.execute("SELECT DISTINCT username FROM uploads").fetchall()
     conn.close()
 
-    return render_template('admin/upload_logs.html', uploads=uploads, users=users)
+    return render_template('admin_upload_logs.html', uploads=uploads, users=users)
 
-# Preview Report Route
+#  Route to generate PDF report
+@admin.route('/generate_pdf_report', methods=['GET'])
+def generate_pdf_report():
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    username = request.args.get('username', '')
+
+    conn = get_db_connection()
+    query = "SELECT id, filename, upload_date, username, result FROM uploads WHERE 1=1"
+    params = []
+
+    if start_date:
+        query += " AND upload_date >= ?"
+        params.append(start_date)
+    if end_date:
+        query += " AND upload_date <= ?"
+        params.append(end_date)
+    if username:
+        query += " AND username = ?"
+        params.append(username)
+
+    uploads = conn.execute(query, params).fetchall()
+    conn.close()
+
+    # Create the PDF
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    pdf.setTitle("Upload Logs Report")
+    
+    # Add Title and Date
+    pdf.drawString(100, 750, f"Upload Logs Report - {datetime.datetime.now().strftime('%Y-%m-%d')}")
+    
+    # Add Table Headers
+    pdf.drawString(50, 700, "ID")
+    pdf.drawString(100, 700, "Filename")
+    pdf.drawString(250, 700, "Date Uploaded")
+    pdf.drawString(400, 700, "Uploaded By")
+    pdf.drawString(500, 700, "Result")
+    
+    # Add Table Rows
+    y = 680
+    for upload in uploads:
+        pdf.drawString(50, y, str(upload['id']))
+        pdf.drawString(100, y, upload['filename'])
+        pdf.drawString(250, y, upload['upload_date'])
+        pdf.drawString(400, y, upload['username'])
+        pdf.drawString(500, y, upload['result'])
+        y -= 20
+    
+    # Finish the PDF
+    pdf.save()
+
+    # Return the PDF as a downloadable file
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename="upload_logs_{datetime.datetime.now().strftime("%Y-%m-%d")}.pdf"'
+    return response
+
+# Route to preview the report
 @admin.route('/preview_report', methods=['POST'])
 def preview_report():
-    start_date = request.form.get('start_date')
-    end_date = request.form.get('end_date')
-    username = request.form.get('username')
+    start_date = request.form.get('start_date', '')
+    end_date = request.form.get('end_date', '')
+    username = request.form.get('username', '')
 
     conn = get_db_connection()
-
-    # Build the query dynamically based on filters
-    query = 'SELECT * FROM uploads WHERE 1=1'
+    query = "SELECT id, filename, upload_date, username, result FROM uploads WHERE 1=1"
     params = []
-    
-    if start_date and end_date:
-        query += ' AND upload_date BETWEEN ? AND ?'
-        params.extend([start_date, end_date])
-    
+
+    if start_date:
+        query += " AND upload_date >= ?"
+        params.append(start_date)
+    if end_date:
+        query += " AND upload_date <= ?"
+        params.append(end_date)
     if username:
-        query += ' AND username = ?'
+        query += " AND username = ?"
         params.append(username)
 
-    uploads = conn.execute(query, tuple(params)).fetchall()
-    users = conn.execute('SELECT DISTINCT username FROM uploads').fetchall()
+    uploads = conn.execute(query, params).fetchall()
+    users = conn.execute("SELECT DISTINCT username FROM uploads").fetchall()
     conn.close()
 
-    # Render the report preview page with the filtered uploads
     return render_template('admin/upload_logs.html', uploads=uploads, users=users)
-
-# Generate and Download Report Route
-@admin.route('/generate_report', methods=['POST'])
-def generate_report():
-    start_date = request.form.get('start_date')
-    end_date = request.form.get('end_date')
-    username = request.form.get('username')
-
-    conn = get_db_connection()
-
-    # Build the query dynamically based on filters
-    query = 'SELECT * FROM uploads WHERE 1=1'
-    params = []
-    
-    if start_date and end_date:
-        query += ' AND upload_date BETWEEN ? AND ?'
-        params.extend([start_date, end_date])
-    
-    if username:
-        query += ' AND username = ?'
-        params.append(username)
-
-    uploads = conn.execute(query, tuple(params)).fetchall()
-    conn.close()
-
-    # Generate CSV
-    si = StringIO()
-    csv_writer = csv.writer(si)
-
-    # Add headers
-    csv_writer.writerow(['ID', 'Filename', 'Upload Date', 'Uploaded By', 'Result'])
-
-    # Add data rows
-    for upload in uploads:
-        csv_writer.writerow([upload['id'], upload['filename'], upload['upload_date'], upload['username'], upload['result']])
-
-    # Create the CSV response
-    output = si.getvalue()
-    si.close()
-
-    response = Response(output, mimetype='text/csv')
-    response.headers['Content-Disposition'] = 'attachment; filename=upload_logs_report.csv'
-
-    return response
