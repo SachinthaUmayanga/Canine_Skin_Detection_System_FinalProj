@@ -1,7 +1,7 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session, flash
-import sqlite3
-import hashlib  # For password hashing
+from flask import Blueprint, current_app, request, render_template, redirect, url_for, session, flash
+import hashlib, os
 from db import get_db_connection  # Import from db.py
+from werkzeug.utils import secure_filename
 
 auth = Blueprint('auth', __name__)
 
