@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session, Response,make_response
 from db import get_db_connection  # Import from db.py
-import hashlib, datetime, csv
+import hashlib, datetime, csv, os
 from io import StringIO, BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from werkzeug.utils import secure_filename
 
 admin = Blueprint('admin', __name__)
 
@@ -25,8 +26,13 @@ def admin_dashboard():
     # Pass the data to the dashboard template
     return render_template('admin/admin_dashboard.html', total_users=total_users, total_reports=total_reports, total_uploads=total_uploads, recent_uploads=recent_uploads)
 
-
 # Users route
+# Define the allowed file extensions for profile pictures
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @admin.route('/manage_users')
 def manage_users():
     if 'user' not in session or session.get('role') != 'admin':
@@ -103,19 +109,39 @@ def add_user():
         role = request.form['role']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
-
+        
+        # Handle profile picture
+        profile_picture = request.files.get('profile_picture')
+        
         # Validate password confirmation
         if password != confirm_password:
             flash('Passwords do not match!', 'danger')
             return redirect(url_for('admin.add_user'))
-
+        
         # Hash the password
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
+        # Initialize the profile_picture_path to None
+        profile_picture_path = None
+
+        # Check if a profile picture was uploaded and validate the file
+        if profile_picture and allowed_file(profile_picture.filename):
+            # Secure the filename
+            filename = secure_filename(profile_picture.filename)
+            # Create a path to save the file (e.g., 'uploads/profile_pictures/username.jpg')
+            profile_picture_path = os.path.join('uploads', 'profile_pictures', filename)
+            # Save the file to the specified path
+            profile_picture.save(profile_picture_path)
+        else:
+            flash('Invalid file type for profile picture. Please upload a valid image file (png, jpg, jpeg, gif).', 'danger')
+            return redirect(url_for('admin.add_user'))
+
         # Insert new user into the database
         conn = get_db_connection()
-        conn.execute('INSERT INTO users (username, full_name, dob, nic, address, role, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                     (username, full_name, dob, nic, address, role, hashed_password))
+        conn.execute('''
+            INSERT INTO users (username, full_name, dob, nic, address, role, password, profile_picture) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (username, full_name, dob, nic, address, role, hashed_password, profile_picture_path))
         conn.commit()
         conn.close()
 
