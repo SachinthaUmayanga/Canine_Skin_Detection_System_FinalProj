@@ -26,7 +26,8 @@
                     New User Information
                 </div>
                 <div class="card-body">
-                    <form action="{{ url_for('admin.add_user') }}" method="POST">
+                    <!-- Make sure to add enctype="multipart/form-data" -->
+                    <form action="{{ url_for('admin.add_user') }}" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required>
@@ -62,6 +63,13 @@
                             <label for="confirm_password" class="form-label">Confirm Password</label>
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                         </div>
+
+                        <!-- Profile Picture Field -->
+                        <div class="mb-3">
+                            <label for="profile_picture" class="form-label">Profile Picture</label>
+                            <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" required>
+                        </div>
+
                         <div class="d-flex justify-content">
                             <button type="submit" class="btn btn-primary me-3">Add User</button>
                             <a href="{{ url_for('admin.manage_users') }}" class="btn btn-secondary me-3">Back</a>
