@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session, Response,make_response
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash, session, Response,make_response, current_app
 from db import get_db_connection  # Import from db.py
 import hashlib, datetime, csv, os
 from io import StringIO, BytesIO
@@ -63,13 +63,32 @@ def edit_user(user_id):
         nic = request.form.get('nic')
         address = request.form.get('address')
 
+        # Handle profile picture upload
+        file = request.files.get('profile_picture')
+        profile_picture = user['profile_picture']  # Keep current profile picture by default
+
+        # Check if a new file was uploaded and if it's allowed
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            upload_folder = os.path.join(current_app.root_path, 'static/uploads')
+            os.makedirs(upload_folder, exist_ok=True)  # Ensure the directory exists
+            profile_picture_path = os.path.join(upload_folder, filename)
+            file.save(profile_picture_path)
+
+            # Save only the relative path to the 'uploads' folder
+            profile_picture = f'uploads/{filename}'
+
         # Validate and update user details
         if not username or not role or not full_name or not dob or not nic or not address:
             flash('All fields are required.', 'danger')
             return redirect(url_for('admin.edit_user', user_id=user_id))
 
-        conn.execute('UPDATE users SET username = ?, role = ?, full_name = ?, dob = ?, nic = ?, address = ? WHERE id = ?',
-                     (username, role, full_name, dob, nic, address, user_id))
+        # Update the user record with or without the profile picture change
+        conn.execute('''
+            UPDATE users 
+            SET username = ?, role = ?, full_name = ?, dob = ?, nic = ?, address = ?, profile_picture = ? 
+            WHERE id = ?
+            ''', (username, role, full_name, dob, nic, address, profile_picture, user_id))
         conn.commit()
         conn.close()
 
@@ -128,10 +147,10 @@ def add_user():
         if profile_picture and allowed_file(profile_picture.filename):
             # Secure the filename
             filename = secure_filename(profile_picture.filename)
-            # Create a path to save the file (e.g., 'uploads/profile_pictures/username.jpg')
-            profile_picture_path = os.path.join('uploads', 'profile_pictures', filename)
-            # Save the file to the specified path
-            profile_picture.save(profile_picture_path)
+            # Create a relative path for the profile picture (without 'static/')
+            profile_picture_path = os.path.join('uploads', filename).replace('\\', '/')
+            # Save the file to the static/profile directory
+            profile_picture.save(os.path.join(current_app.root_path, 'static', profile_picture_path))
         else:
             flash('Invalid file type for profile picture. Please upload a valid image file (png, jpg, jpeg, gif).', 'danger')
             return redirect(url_for('admin.add_user'))
@@ -149,6 +168,7 @@ def add_user():
         return redirect(url_for('admin.manage_users'))
 
     return render_template('admin/add_user.html')
+
 
 # Disease route
 @admin.route('/disease_reports')
