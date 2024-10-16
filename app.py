@@ -4,9 +4,9 @@ from admin import admin
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from werkzeug.utils import secure_filename
 import os
-import sqlite3
 from recognition import process_image, process_video
 from db import get_db_connection  # Import from db.py
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = '1111'  # Secret key for session management and security
