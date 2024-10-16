@@ -52,8 +52,23 @@ footer {
     color: white;
     padding: 10px 0;
     text-align: center;
-    position: fixed;
+    position: relative;
     bottom: 0;
     width: 100%;
     left: 250px;
+}
+
+/* Styling for the users icon in the background */
+.card-icon {
+    position: absolute;
+    font-size: 80px;       /* Adjust size as needed */
+    color: rgba(255, 255, 255, 0.2);  /* Lightened color for the background */
+    bottom: 10px;         /* Position at the bottom */
+    right: 10px;          /* Align to the right */
+    z-index: 0;           /* Ensure it's behind the text */
+}
+
+.card-body {
+    position: relative;
+    z-index: 1;           /* Bring the text to the front */
 }
