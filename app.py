@@ -168,3 +168,23 @@ def about():
 
 if __name__ == '__main__':
     app.run(debug=True)  # Runs the Flask application in debug mode
+
+@app.route('/contact_us', methods=['GET', 'POST'])
+def contact_us():
+    """
+    Renders the contact page and handles contact form submission.
+    """
+    if request.method == 'POST':
+        # Get form data
+        name = request.form['name']
+        email = request.form['email']
+        subject = request.form['subject']
+        message = request.form['message']
+
+        # Here, you can process the form data, such as sending an email or saving the contact details in the database.
+        flash('Thank you for reaching out! We will get back to you soon.', 'success')
+
+        # Redirect back to the contact page or another page
+        return redirect(url_for('contact_us'))
+
+    return render_template('contact_us.html')
