@@ -89,3 +89,28 @@ body.fixed-navbar {
     height: auto;
 }
 
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+.profile-picture-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 5px 10px;
+}
+.toggle-password {
+    cursor: pointer;
+}
