@@ -114,3 +114,9 @@ body.fixed-navbar {
 .toggle-password {
     cursor: pointer;
 }
+
+/* Custom styling for the active navbar link */
+.navbar .nav-link.active {
+    color: #0d025e !important;  /* Change to any color you like, e.g., yellow */
+    font-weight: bold;           /* Optional: Make the active link bold */
+}
