@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light" id="navbar" style="background-color: #1664da;">
+<nav class="navbar navbar-expand-lg navbar-light" id="navbar" style="background-color: #1f6de2;">
     <div class="container px-3">
         <!-- Brand Logo -->
         <a class="navbar-brand text-light fw-bold" href="{{ url_for('index') }}">Canine Skin Detection</a>
@@ -13,15 +13,15 @@
             <ul class="navbar-nav me-auto">
                 <!-- Home Link -->
                 <li class="nav-item">
-                    <a class="nav-link text-light active" aria-current="page" href="{{ url_for('index') }}">Home</a>
+                    <a class="nav-link text-light {% if request.path == url_for('index') %}active{% endif %}" aria-current="page" href="{{ url_for('index') }}">Home</a>
                 </li>
                 <!-- About Link -->
                 <li class="nav-item">
-                    <a class="nav-link text-light" href="{{ url_for('about') }}">About</a>
+                    <a class="nav-link text-light {% if request.path == url_for('about') %}active{% endif %}" href="{{ url_for('about') }}">About</a>
                 </li>
                 <!-- Contact Link -->
                 <li class="nav-item">
-                    <a class="nav-link text-light" href="{{ url_for('contact_us') }}">Contact</a>
+                    <a class="nav-link text-light {% if request.path == url_for('contact_us') %}active{% endif %}" href="{{ url_for('contact_us') }}">Contact</a>
                 </li>
             </ul>
             
@@ -31,7 +31,7 @@
                     <!-- Show Admin Dashboard if the user role is 'admin' -->
                     {% if session.get('role') == 'admin' %}
                     <li class="nav-item">
-                        <a class="nav-link text-light" href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
+                        <a class="nav-link text-light {% if request.path == url_for('admin.admin_dashboard') %}active{% endif %}" href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a>
                     </li>
                     {% endif %}
                     
@@ -48,10 +48,10 @@
                 {% else %}
                     <!-- Login and Register Links for Non-Authenticated Users -->
                     <li class="nav-item">
-                        <a class="nav-link text-light" href="{{ url_for('auth.login') }}">Login</a>
+                        <a class="nav-link text-light {% if request.path == url_for('auth.login') %}active{% endif %}" href="{{ url_for('auth.login') }}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-light" href="{{ url_for('auth.signup') }}">Register</a>
+                        <a class="nav-link text-light {% if request.path == url_for('auth.signup') %}active{% endif %}" href="{{ url_for('auth.signup') }}">Register</a>
                     </li>
                 {% endif %}
             </ul>
