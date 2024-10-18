@@ -46,6 +46,13 @@ html,body {
 .content {
     margin-left: 250px;
     padding: 20px;
+    flex: 1;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* Footer styles */
@@ -54,10 +61,7 @@ footer {
     color: white;
     padding: 10px 0;
     text-align: center;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    left: 250px;
+    position: bottom;
 }
 
 /* Styling for the users icon in the background */
