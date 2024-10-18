@@ -24,54 +24,54 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3">Upload Logs</h1>
 
-                <!-- Date Range and User Filter -->
-                <form action="{{ url_for('admin.filter_logs') }}" method="GET" class="d-flex align-items-center">
-                    <div class="input-group">
-                        <label for="startDate" class="form-label me-2">Start Date:</label>
-                        <input type="date" id="startDate" name="start_date" class="form-control">
-                    </div>
-                    <div class="input-group ms-3">
-                        <label for="endDate" class="form-label me-2">End Date:</label>
-                        <input type="date" id="endDate" name="end_date" class="form-control">
-                    </div>
-                    <div class="input-group ms-3">
-                        <label for="username" class="form-label me-2">User:</label>
-                        <select id="username" name="username" class="form-select">
-                            <option value="">All Users</option>
-                            {% for user in users %}
-                                <option value="{{ user.username }}">{{ user.username }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary ms-3">Filter</button>
-                </form>
-            </div>
-
-            <!-- Generate Report and Download Options -->
-            <div class="mb-4">
-                <form action="{{ url_for('admin.preview_report') }}" method="POST">
+                <!-- Generate PDF Report Button on top -->
+                <form action="{{ url_for('admin.generate_pdf_report') }}" method="GET" class="d-inline">
                     <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
                     <input type="hidden" name="end_date" value="{{ request.args.get('end_date', '') }}">
                     <input type="hidden" name="username" value="{{ request.args.get('username', '') }}">
-                    <button type="submit" class="btn btn-success">Generate Report Preview</button>
-                </form>
-                
-                <!-- Generate PDF Report Button -->
-                <form action="{{ url_for('admin.generate_pdf_report') }}" method="GET" class="mt-2">
-                    <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
-                    <input type="hidden" name="end_date" value="{{ request.args.get('end_date', '') }}">
-                    <input type="hidden" name="username" value="{{ request.args.get('username', '') }}">
-                    <button type="submit" class="btn btn-danger">Download PDF Report</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>Download PDF Report
+                    </button>
                 </form>
             </div>
 
-            <!-- Preview Report Section -->
-            {% if uploads %}
+            <!-- Report Preview Section with Redesigned Filter -->
             <div class="card shadow-sm mt-4">
-                <div class="card-header bg-primary text-white">
-                    Report Preview
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Report Preview</h5>
                 </div>
                 <div class="card-body">
+                    <!-- Filter Section - Redesigned for better UX -->
+                    <form action="{{ url_for('admin.filter_logs') }}" method="GET" class="row g-3 mb-4 p-3 rounded bg-light shadow-sm">
+                        <div class="col-md-4">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" id="startDate" name="start_date" class="form-control" value="{{ request.args.get('start_date') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" id="endDate" name="end_date" class="form-control" value="{{ request.args.get('end_date') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="username" class="form-label">User</label>
+                            <select id="username" name="username" class="form-select">
+                                <option value="">All Users</option>
+                                {% for user in users %}
+                                    <option value="{{ user.username }}" {% if request.args.get('username') == user.username %}selected{% endif %}>{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="bi bi-funnel-fill me-2"></i>Apply Filter
+                            </button>
+                            <a href="{{ url_for('admin.upload_logs') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle-fill me-2"></i>Clear
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Preview Report Section -->
+                    {% if uploads %}
                     <table class="table table-hover table-striped align-middle">
                         <thead class="table-dark">
                             <tr>
@@ -100,9 +100,11 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% else %}
+                        <p class="text-center">No logs found for the selected filters.</p>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 
@@ -117,5 +119,6 @@
 
     <!-- Include the main.js file -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
 </body>
 </html>

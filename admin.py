@@ -269,14 +269,19 @@ def delete_log(upload_id):
 
 @admin.route('/filter_logs', methods=['GET'])
 def filter_logs():
+    # Get the filter parameters from the query string
     start_date = request.args.get('start_date', '')
     end_date = request.args.get('end_date', '')
     username = request.args.get('username', '')
 
+    # Establish a connection to the database
     conn = get_db_connection()
+
+    # Query to get the upload logs based on filters
     query = "SELECT id, filename, upload_date, username, result FROM uploads WHERE 1=1"
     params = []
 
+    # Filter by start date, end date, and username if provided
     if start_date:
         query += " AND upload_date >= ?"
         params.append(start_date)
@@ -287,10 +292,16 @@ def filter_logs():
         query += " AND username = ?"
         params.append(username)
 
+    # Execute the query to get the filtered uploads
     uploads = conn.execute(query, params).fetchall()
+
+    # Query to fetch all distinct usernames from the uploads table
     users = conn.execute("SELECT DISTINCT username FROM uploads").fetchall()
+
+    # Close the database connection
     conn.close()
 
+    # Render the template, passing the uploads and the list of distinct users
     return render_template('admin/upload_logs.html', uploads=uploads, users=users)
 
 #  Route to generate PDF report
