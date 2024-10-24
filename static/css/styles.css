@@ -117,6 +117,15 @@ body.fixed-navbar {
 
 /* Custom styling for the active navbar link */
 .navbar .nav-link.active {
-    color: #0d025e !important;  /* Change to any color you like, e.g., yellow */
+    color: #ffffff !important;  /* Change to any color you like, e.g., yellow */
     font-weight: bold;           /* Optional: Make the active link bold */
+}
+
+.social-icon i {
+    filter: grayscale(100%); /* Convert to black & white */
+    color: black; /* Optional: ensure base color is black */
+}
+
+.social-icon i:hover {
+    filter: grayscale(0%); /* Optional: Add hover effect to bring color back */
 }
