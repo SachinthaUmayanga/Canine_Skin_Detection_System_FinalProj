@@ -3,7 +3,7 @@ from auth import auth
 from admin import admin
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from werkzeug.utils import secure_filename
-import os
+import os, pytz
 from recognition import process_image, process_video
 from db import get_db_connection  # Import from db.py
 from datetime import datetime
@@ -188,3 +188,28 @@ def contact_us():
         return redirect(url_for('contact_us'))
 
     return render_template('contact_us.html')
+
+@app.route('/submit_feedback', methods=['POST'])
+@login_required
+def submit_feedback():
+    """
+    Handles user feedback submission with star rating and comments.
+    """
+    rating = int(request.form['rating'])
+    feedback = request.form['feedback']
+    username = session['user']
+    
+    # Set the timezone (example: 'Asia/Colombo')
+    timezone = pytz.timezone("Asia/Colombo")
+    timestamp = datetime.now(timezone)
+
+    conn = get_db_connection()
+    conn.execute(
+        'INSERT INTO feedback (username, rating, feedback, timestamp) VALUES (?, ?, ?, ?)',
+        (username, rating, feedback, timestamp)
+    )
+    conn.commit()
+    conn.close()
+
+    flash('Thank you for your feedback!', 'success')
+    return redirect(url_for('index'))
