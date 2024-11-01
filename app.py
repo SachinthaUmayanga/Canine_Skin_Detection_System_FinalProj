@@ -17,6 +17,9 @@ app.register_blueprint(auth, url_prefix='/auth')
 # Register the admin blueprint
 app.register_blueprint(admin, url_prefix='/admin')
 
+if __name__ == '__main__':
+    app.run(debug=True)  # Runs the Flask application in debug mode
+
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
@@ -165,9 +168,6 @@ def about():
     Renders the about page.
     """
     return render_template('about.html')  # Matches the 'About Us' link
-
-if __name__ == '__main__':
-    app.run(debug=True)  # Runs the Flask application in debug mode
 
 @app.route('/contact_us', methods=['GET', 'POST'])
 def contact_us():
