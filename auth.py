@@ -144,7 +144,7 @@ def change_profile():
         conn.commit()
         conn.close()
 
-        return redirect(url_for('auth.change_profile'))
+        return redirect(url_for('index'))
 
     # Retrieve user info to populate the form
     user = cursor.execute('SELECT * FROM users WHERE username = ?', (current_username,)).fetchone()
