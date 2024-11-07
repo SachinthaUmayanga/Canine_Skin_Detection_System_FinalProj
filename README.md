@@ -31,7 +31,7 @@ This Flask-based web application is designed for canine skin disease detection. 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/canine-skin-detection.git
+   git clone https://github.com/SachinthaUmayanga/Canine_Skin_Detection_System_FinalProj.git
 
 2. Navigate to the project directory:
 
