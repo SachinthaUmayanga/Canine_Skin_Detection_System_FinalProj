@@ -20,7 +20,7 @@ def admin_dashboard():
     total_users = conn.execute('SELECT COUNT(*) FROM users').fetchone()[0]
     total_uploads = conn.execute('SELECT COUNT(*) FROM uploads').fetchone()[0]
     total_reports = conn.execute('SELECT COUNT(*) FROM diseases').fetchone()[0]
-    recent_uploads = conn.execute('SELECT filename, upload_date, username, result FROM uploads ORDER BY upload_date DESC LIMIT 10').fetchall()
+    recent_uploads = conn.execute('SELECT filename, upload_date, username, result FROM uploads ORDER BY upload_date DESC LIMIT 15').fetchall()
     conn.close()
 
     # Pass the data to the dashboard template
